@@ -7,41 +7,33 @@ double *create_empty_array(int n);
 double **create_rand_square_matrix(int n);
 double time_to_multiply_ij(int n, double **matrix, double *array, double *result);
 double time_to_multiply_ji(int n, double **matrix, double *array, double *result);
+void clear_array(int n, double *array);
 
 int main(void){
     srand(time(NULL));
 
+    int nMAX = 16000;
+    
     // b = A * x
-    double **A;
-    double *x;
-    double *b; 
+    double **A = create_rand_square_matrix(nMAX);
+    double *x  = create_rand_array(nMAX);
+    double *b  = create_empty_array(nMAX);
 
     FILE *csv_file = fopen("c_times.csv", "w");
     fprintf(csv_file,"n,Time_ij,Time_ji\n");
-    
-    int n,k;
+
+    int n;
     int range = 16;
     for (int i = 0; i <= range; i++){
         n = i * 1000;
         
-        A = create_rand_square_matrix(n); 
-        x = create_rand_array(n);
-        b = create_empty_array(n);
-        
-        double time_ji = time_to_multiply_ji(n,A,x,b);
         double time_ij = time_to_multiply_ij(n,A,x,b);
+        clear_array(n,b);
+        double time_ji = time_to_multiply_ji(n,A,x,b);
         
         printf("n = %5d -> ij: %.6f / ji: %.6f \n",n,time_ij,time_ji);
         fprintf(csv_file,"%d,%.6f,%.6f\n",n, time_ij, time_ji);
-
-        for (k = 0; k < n; k++){
-            free(A[k]);
-        }
-        free(A);
-        free(x);
-        free(b);
     }
-
     fclose(csv_file);
     return 0;
 }
@@ -94,4 +86,10 @@ double time_to_multiply_ji(int n, double **matrix, double *array, double *result
     }
     clock_t end = clock();
     return (double)(end - start)/CLOCKS_PER_SEC;
+}
+
+void clear_array(int n, double *array){
+    for (int i = 0; i < n; i++){
+        array[i] = 0;
+    }
 }
